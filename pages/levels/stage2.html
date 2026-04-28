@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compile-IT | Lexical Forest</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/components.css">
+    <link rel="stylesheet" href="../../css/animations.css">
+</head>
+<body>
+    <!-- TOP HUD -->
+    <div id="top-bar">
+        <div class="level-display">Lexical Forest (Stage 2)</div>
+        <div class="score-display">Score: <span id="player-score"></span></div>
+        <div class="hud-right">
+            <button id="btn-hint" class="btn btn-hint">Hint (-50 pts)</button>
+            <button id="btn-exit" class="btn btn-exit">Exit</button>
+        </div>
+    </div>
+
+    <!-- 4-PANEL GAME BOARD -->
+    <div class="game-board">
+
+        <!-- Panel 1: Source Code (Read-Only) -->
+        <div class="panel" id="panel-code">
+            <h3>Source Code</h3>
+            <p>Your previously submitted C code:</p>
+            <pre id="code-display" class="code-block"></pre>
+        </div>
+
+        <!-- Panel 2: Mission Brief -->
+        <div class="panel" id="panel-mission">
+            <h3>Mission Brief</h3>
+            <p>Welcome to <strong>Lexical Forest</strong>! The first step of any compiler is <em>lexical analysis</em> — breaking source code into individual <strong>tokens</strong>.</p>
+            <p>Your task:</p>
+            <ul>
+                <li>Look at your C code on the left.</li>
+                <li>Identify every individual token (keyword, variable, operator, number, delimiter).</li>
+                <li>Enter them below, separated by the <code>|</code> pipe character.</li>
+            </ul>
+            <p style="margin-top: 10px;"><strong>Example:</strong></p>
+            <p><code>int x = 5;</code> → <code>int | x | = | 5 | ;</code></p>
+            <p style="margin-top: 10px; color: var(--error-color); font-weight: 600;">
+                You have 3 attempts. After 3 failures, the correct answer will be shown.
+            </p>
+        </div>
+
+        <!-- Panel 3: Interactive Area -->
+        <div class="panel" id="panel-interactive">
+            <h3>Token Input</h3>
+            <p>Enter all tokens separated by <code>|</code> :</p>
+            <textarea id="token-input" class="input-box" rows="6" placeholder="e.g. int | x | = | 5 | ;"></textarea>
+            <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+                <button id="btn-verify" class="btn btn-verify">Verify Tokens</button>
+                <span id="attempt-display" class="attempt-counter">Attempt 0/3</span>
+            </div>
+        </div>
+
+        <!-- Panel 4: Output Console -->
+        <div class="panel" id="panel-output">
+            <h3>Output Console</h3>
+            <div id="output-msg" class="console-box">System ready. Split the source code into tokens...</div>
+        </div>
+
+    </div>
+
+    <!-- Entry Point -->
+    <script type="module" src="../../js/levels/stage2_main.js"></script>
+</body>
+</html>

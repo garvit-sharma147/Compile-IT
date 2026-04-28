@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compile-IT | Grammar Temple</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/components.css">
+    <link rel="stylesheet" href="../../css/animations.css">
+    <style>
+        /* ===== SOURCE GRAMMAR DISPLAY ===== */
+        .grammar-display {
+            background: #0d0d0d;
+            color: #a5d6a7;
+            font-family: 'Courier New', monospace;
+            font-size: 0.92rem;
+            padding: 14px 16px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            white-space: pre-wrap;
+            line-height: 1.85;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .grammar-display .production-line {
+            padding: 2px 0;
+        }
+
+        .grammar-display .non-terminal {
+            color: #ff9800;
+            font-weight: 700;
+        }
+
+        .grammar-display .arrow {
+            color: #78909c;
+            margin: 0 4px;
+        }
+
+        .grammar-display .terminal-sym {
+            color: #81d4fa;
+        }
+
+        .grammar-display .pipe {
+            color: #ef5350;
+            font-weight: 700;
+            margin: 0 3px;
+        }
+
+        .grammar-display .epsilon {
+            color: #ce93d8;
+            font-style: italic;
+        }
+
+        /* ===== GRAMMAR LEGEND ===== */
+        .grammar-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.08);
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .legend-entry {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75rem;
+            color: var(--text-dark);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .legend-dot.nt  { background: #ff9800; }
+        .legend-dot.t   { background: #81d4fa; }
+        .legend-dot.eps { background: #ce93d8; }
+
+        /* ===== STRING INPUT ===== */
+        .string-input {
+            width: 100%;
+            background: #0d0d0d;
+            color: #81d4fa;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            padding: 12px 14px;
+            border: 2px solid #333;
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .string-input:focus {
+            border-color: var(--score-color);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.25);
+        }
+
+        .string-input::placeholder {
+            color: #555;
+        }
+
+        /* ===== INPUT CONTROLS ===== */
+        .input-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .btn-clear {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--border-color);
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-family: var(--font-main);
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-clear:hover {
+            background: var(--border-color);
+            color: #fff;
+        }
+
+        .validation-counter {
+            font-size: 0.82rem;
+            color: var(--score-color);
+            font-weight: 600;
+            padding: 4px 10px;
+            border: 2px solid var(--score-color);
+            border-radius: 10px;
+            margin-left: auto;
+        }
+
+        /* ===== RESULT ENTRIES IN CONSOLE ===== */
+        .result-entry {
+            padding: 6px 0;
+            border-bottom: 1px solid #333;
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        .result-entry:last-child {
+            border-bottom: none;
+        }
+
+        .result-entry .result-string {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+        }
+
+        .result-entry .result-accepted {
+            color: #66bb6a;
+            font-weight: 700;
+        }
+
+        .result-entry .result-rejected {
+            color: #ef5350;
+            font-weight: 700;
+        }
+
+        .result-entry .result-reason {
+            color: #999;
+            font-size: 0.8rem;
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* ===== DERIVATION CHAIN ===== */
+        .derivation-chain {
+            font-family: 'Courier New', monospace;
+            color: #a5d6a7;
+            background: #111;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-top: 4px;
+            font-size: 0.82rem;
+            border-left: 3px solid #5a8e03;
+            line-height: 1.6;
+            word-break: break-all;
+        }
+
+        /* ===== COMPLETE BAR ===== */
+        .complete-bar {
+            display: none;
+            margin-top: 10px;
+            flex-shrink: 0;
+        }
+
+        .complete-bar.visible {
+            display: flex;
+        }
+
+        /* ===== MISSION BRIEF STYLING ===== */
+        .mission-note {
+            font-size: 0.82rem;
+            color: #999;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .term-def {
+            margin-bottom: 6px;
+            padding-left: 10px;
+            border-left: 3px solid var(--border-color);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .term-def strong {
+            color: var(--btn-color);
+        }
+
+        /* ===== EPSILON INPUT HELPER ===== */
+        .epsilon-hint {
+            font-size: 0.78rem;
+            color: #888;
+            margin-top: 6px;
+        }
+
+        .epsilon-hint code {
+            background: rgba(0,0,0,0.15);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.78rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- TOP HUD -->
+    <div id="top-bar">
+        <div class="level-display">Grammar Temple (Stage 6)</div>
+        <div class="score-display">Score: <span id="player-score"></span></div>
+        <div class="hud-right">
+            <button id="btn-hint" class="btn btn-hint">Hint (-50 pts)</button>
+            <button id="btn-exit" class="btn btn-exit">Exit</button>
+        </div>
+    </div>
+
+    <!-- 4-PANEL GAME BOARD -->
+    <div class="game-board">
+
+        <!-- Panel 1: Source Grammar (Top Left) -->
+        <div class="panel" id="panel-grammar">
+            <h3>Source Grammar</h3>
+            <div class="grammar-display" id="grammar-display">
+                <!-- Grammar productions rendered by JS -->
+            </div>
+            <div class="grammar-legend">
+                <div class="legend-entry"><span class="legend-dot nt"></span> Non-terminal</div>
+                <div class="legend-entry"><span class="legend-dot t"></span> Terminal</div>
+                <div class="legend-entry"><span class="legend-dot eps"></span> Epsilon (ε)</div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Mission Brief (Top Right) -->
+        <div class="panel" id="panel-mission">
+            <h3>Mission Brief</h3>
+            <p>Welcome to <strong>Grammar Temple</strong>! Test whether strings can be <em>derived</em> from your Context-Free Grammar.</p>
+            <p><strong>Your task:</strong></p>
+            <ul>
+                <li>Study the grammar rules on the left.</li>
+                <li>Enter a test string below.</li>
+                <li>Click <strong>Validate String</strong> to check if it belongs to the language.</li>
+                <li>Perform at least <strong>3 validations</strong> to complete.</li>
+            </ul>
+            <p style="margin-top: 10px;"><strong>Key concepts:</strong></p>
+            <div class="term-def"><strong>Non-terminals</strong> — Uppercase symbols (S, A, B) that expand into other symbols.</div>
+            <div class="term-def"><strong>Terminals</strong> — Lowercase characters (a, b, c) that appear in the final string.</div>
+            <div class="term-def"><strong>Start Symbol</strong> — The first non-terminal (left side of the first rule).</div>
+            <div class="term-def"><strong>ε (epsilon)</strong> — Represents the empty string.</div>
+            <p class="mission-note">Valid strings can be produced by repeatedly applying grammar rules starting from the start symbol.</p>
+        </div>
+
+        <!-- Panel 3: User Input (Bottom Left) -->
+        <div class="panel" id="panel-input">
+            <h3>Test String</h3>
+            <p>Enter a string to test against the grammar:</p>
+            <input type="text" class="string-input" id="string-input" placeholder='e.g., aabb or leave empty for ε' spellcheck="false" autocomplete="off">
+            <p class="epsilon-hint">Tip: Leave empty or type <code>ε</code> to test the empty string.</p>
+            <div class="input-controls">
+                <button id="btn-validate" class="btn btn-verify">Validate String</button>
+                <button id="btn-clear" class="btn-clear">Clear</button>
+                <span id="validation-counter" class="validation-counter">0 / 3 validations</span>
+            </div>
+            <div class="complete-bar" id="complete-bar">
+                <button id="btn-complete" class="btn btn-verify">Complete & Continue →</button>
+            </div>
+        </div>
+
+        <!-- Panel 4: Output Console (Bottom Right) -->
+        <div class="panel" id="panel-output">
+            <h3>Output Console</h3>
+            <div id="output-msg" class="console-box">System ready. Enter a string and click "Validate String" to test derivation...</div>
+        </div>
+
+    </div>
+
+    <script type="module" src="../../js/levels/stage6_main.js"></script>
+</body>
+</html>

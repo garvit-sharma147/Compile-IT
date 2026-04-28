@@ -1,0 +1,293 @@
+/* components.css — Buttons, Cards, Panels, Inputs */
+
+/* ===== PRIMARY BUTTON ===== */
+.btn {
+    background-color: var(--btn-color);
+    color: var(--text-light);
+    border: 4px solid var(--border-color);
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    font-family: var(--font-main);
+    cursor: pointer;
+    box-shadow: 0 6px 0 var(--border-color), 0 10px 10px rgba(0,0,0,0.3);
+    transition: transform 0.1s, box-shadow 0.1s;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    margin: 10px;
+    min-width: 250px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn:active {
+    transform: translateY(6px);
+    box-shadow: 0 0px 0 var(--border-color), 0 5px 5px rgba(0,0,0,0.3);
+}
+
+.btn:hover {
+    filter: brightness(1.1);
+}
+
+/* Small button variant */
+.btn-small {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    min-width: auto;
+    border-width: 3px;
+    box-shadow: 0 4px 0 var(--border-color), 0 6px 6px rgba(0,0,0,0.3);
+    margin: 0;
+}
+
+.btn-small:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--border-color);
+}
+
+/* ===== HINT BUTTON ===== */
+.btn-hint {
+    background-color: var(--score-color);
+    color: var(--text-dark);
+    border-color: var(--text-dark);
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    min-width: auto;
+    text-shadow: none;
+    border-radius: 15px;
+    box-shadow: 0 3px 0 var(--text-dark);
+    margin: 0;
+    border-width: 3px;
+}
+
+.btn-hint:active {
+    transform: translateY(3px);
+    box-shadow: 0 0px 0 var(--text-dark);
+}
+
+/* ===== EXIT BUTTON ===== */
+.btn-exit {
+    background-color: var(--error-color);
+    color: var(--text-light);
+    border-color: #c0392b;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    min-width: auto;
+    border-radius: 15px;
+    box-shadow: 0 3px 0 #c0392b;
+    margin: 0;
+    border-width: 3px;
+}
+
+.btn-exit:active {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 #c0392b;
+}
+
+/* ===== VERIFY / SUBMIT BUTTON ===== */
+.btn-verify {
+    background-color: var(--success-color);
+    color: var(--text-light);
+    border-color: #4a7a03;
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    min-width: 200px;
+    border-radius: 25px;
+    box-shadow: 0 5px 0 #4a7a03, 0 8px 8px rgba(0,0,0,0.3);
+    margin: 10px 0;
+    border-width: 3px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+.btn-verify:active {
+    transform: translateY(5px);
+    box-shadow: 0 0 0 #4a7a03;
+}
+
+.btn-verify:hover {
+    filter: brightness(1.15);
+}
+
+/* ===== CARD ===== */
+.card {
+    background-color: var(--panel-bg);
+    border: 4px solid var(--border-color);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+
+/* ===== CODE BLOCK ===== */
+.code-block {
+    background: #1e1e1e;
+    color: #00ff00;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 1.05rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    border: 2px solid #333;
+}
+
+/* ===== OUTPUT CONSOLE ===== */
+.console-box {
+    background: #000;
+    color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: monospace;
+    min-height: 80px;
+    white-space: pre-wrap;
+    border: 2px solid #555;
+    line-height: 1.5;
+    flex: 1;
+}
+
+.success-msg {
+    color: var(--correct-color);
+    font-weight: bold;
+}
+
+.error-msg {
+    color: var(--error-color);
+    font-weight: bold;
+}
+
+/* ===== INPUT BOX (Textarea) ===== */
+.input-box {
+    width: 100%;
+    background: #111;
+    color: #0f0;
+    font-family: monospace;
+    font-size: 1rem;
+    padding: 15px;
+    border: 2px solid var(--btn-color);
+    border-radius: 8px;
+    outline: none;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.input-box:focus {
+    border-color: var(--score-color);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
+/* ===== TOKEN BUTTONS ===== */
+.token-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.token-btn {
+    background-color: #1e1e1e;
+    border: 2px solid var(--btn-color);
+    padding: 8px 14px;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.token-btn:hover {
+    background-color: var(--btn-color);
+    color: white;
+}
+
+.token-btn.identified {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    cursor: default;
+}
+
+/* ===== CLASSIFICATION BUTTONS ===== */
+.classification-controls {
+    display: none;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    align-items: center;
+}
+
+.small-neon {
+    background: transparent;
+    border: 2px solid var(--btn-color);
+    color: var(--btn-color);
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: var(--font-main);
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.small-neon:hover {
+    background: var(--btn-color);
+    color: white;
+}
+
+/* ===== ATTEMPT COUNTER ===== */
+.attempt-counter {
+    font-size: 0.9rem;
+    color: var(--score-color);
+    font-weight: 600;
+    padding: 5px 10px;
+    border: 2px solid var(--score-color);
+    border-radius: 10px;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+/* ===== TITLE TEXT (Menu) ===== */
+.title-text {
+    font-size: 4rem;
+    color: var(--score-color);
+    text-shadow: 3px 3px 0 var(--btn-color), 6px 6px 10px rgba(0,0,0,0.5);
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+/* ===== MENU CARD ===== */
+.menu-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    min-width: 400px;
+    background-color: rgba(253, 245, 230, 0.95);
+}
+
+/* ===== MCQ OPTION BUTTONS ===== */
+.option-btn {
+    background-color: #05051A;
+    color: #00f5ff;
+    border: 2px solid #00f5ff;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--font-main);
+    font-size: 1rem;
+    transition: all 0.2s;
+    width: 100%;
+    text-align: left;
+}
+
+.option-btn:hover {
+    background-color: #1a1a3a;
+    box-shadow: 0 0 10px #00f5ff;
+}

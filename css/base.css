@@ -1,0 +1,50 @@
+/* base.css — Design Tokens & Reset */
+:root {
+    --bg-color: #2c3e50;
+    --panel-bg: #fdf5e6;
+    --btn-color: #7a5f3d;
+    --border-color: #c2b280;
+    --correct-color: #5a8e03;
+    --error-color: #e74c3c;
+    --score-color: #ffd700;
+    --success-color: #5a8e03;
+    --map-grass: #6aa84f;
+    --locked: #8b8b8b;
+    --unlocked: #7a5f3d;
+    --text-dark: #333;
+    --text-light: #fff;
+    --font-main: 'Poppins', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    font-family: var(--font-main);
+    color: var(--text-dark);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-main);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul, ol {
+    padding-left: 20px;
+}
+
+li {
+    margin-bottom: 5px;
+}

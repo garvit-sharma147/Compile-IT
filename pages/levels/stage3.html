@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compile-IT | Token Valley</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/components.css">
+    <link rel="stylesheet" href="../../css/animations.css">
+    <style>
+        /* Token card grid */
+        .token-card-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .token-card {
+            background: #1e1e1e;
+            color: #fff;
+            border: 2px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            user-select: none;
+            position: relative;
+        }
+
+        .token-card:hover {
+            border-color: var(--score-color);
+            background: #2a2a2a;
+        }
+
+        .token-card.selected {
+            border-color: var(--score-color);
+            box-shadow: 0 0 12px var(--score-color);
+            background: #2a2a1a;
+        }
+
+        .token-card.classified {
+            border-color: var(--correct-color);
+            background: #1a2a1a;
+        }
+
+        .token-card .label {
+            display: block;
+            font-size: 0.65rem;
+            color: var(--score-color);
+            margin-top: 3px;
+            font-family: var(--font-main);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .token-card.classified .label {
+            color: #7dff7d;
+        }
+
+        /* Category buttons */
+        .category-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 12px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            align-items: center;
+            min-height: 50px;
+        }
+
+        .category-bar .label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--btn-color);
+            margin-right: 5px;
+        }
+
+        .cat-btn {
+            background: transparent;
+            border: 2px solid var(--btn-color);
+            color: var(--btn-color);
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: all 0.15s;
+        }
+
+        .cat-btn:hover {
+            background: var(--btn-color);
+            color: #fff;
+        }
+
+        .cat-btn.active {
+            background: var(--btn-color);
+            color: #fff;
+        }
+
+        /* Color-coded categories */
+        .cat-Keyword     { border-color: #e67e22 !important; color: #e67e22 !important; }
+        .cat-Keyword:hover, .cat-Keyword.active { background: #e67e22 !important; color: #fff !important; }
+        .cat-Identifier  { border-color: #3498db !important; color: #3498db !important; }
+        .cat-Identifier:hover, .cat-Identifier.active { background: #3498db !important; color: #fff !important; }
+        .cat-Operator    { border-color: #e74c3c !important; color: #e74c3c !important; }
+        .cat-Operator:hover, .cat-Operator.active { background: #e74c3c !important; color: #fff !important; }
+        .cat-Number      { border-color: #2ecc71 !important; color: #2ecc71 !important; }
+        .cat-Number:hover, .cat-Number.active { background: #2ecc71 !important; color: #fff !important; }
+        .cat-Delimiter      { border-color: #95a5a6 !important; color: #95a5a6 !important; }
+        .cat-Delimiter:hover, .cat-Delimiter.active { background: #95a5a6 !important; color: #fff !important; }
+        .cat-String      { border-color: #f39c12 !important; color: #f39c12 !important; }
+        .cat-String:hover, .cat-String.active { background: #f39c12 !important; color: #fff !important; }
+        .cat-Function    { border-color: #9b59b6 !important; color: #9b59b6 !important; }
+        .cat-Function:hover, .cat-Function.active { background: #9b59b6 !important; color: #fff !important; }
+        .cat-Header      { border-color: #1abc9c !important; color: #1abc9c !important; }
+        .cat-Header:hover, .cat-Header.active { background: #1abc9c !important; color: #fff !important; }
+
+        /* Token card takes category color when classified */
+        .token-card[data-assigned="Keyword"]    { border-color: #e67e22; }
+        .token-card[data-assigned="Keyword"] .label    { color: #e67e22; }
+        .token-card[data-assigned="Identifier"] { border-color: #3498db; }
+        .token-card[data-assigned="Identifier"] .label { color: #3498db; }
+        .token-card[data-assigned="Operator"]   { border-color: #e74c3c; }
+        .token-card[data-assigned="Operator"] .label   { color: #e74c3c; }
+        .token-card[data-assigned="Number"]     { border-color: #2ecc71; }
+        .token-card[data-assigned="Number"] .label     { color: #2ecc71; }
+        .token-card[data-assigned="Delimiter"]     { border-color: #95a5a6; }
+        .token-card[data-assigned="Delimiter"] .label     { color: #95a5a6; }
+        .token-card[data-assigned="String"]     { border-color: #f39c12; }
+        .token-card[data-assigned="String"] .label     { color: #f39c12; }
+        .token-card[data-assigned="Function"]   { border-color: #9b59b6; }
+        .token-card[data-assigned="Function"] .label   { color: #9b59b6; }
+        .token-card[data-assigned="Header"]     { border-color: #1abc9c; }
+        .token-card[data-assigned="Header"] .label     { color: #1abc9c; }
+
+        /* Wrong highlight */
+        .token-card.wrong {
+            border-color: var(--error-color) !important;
+            box-shadow: 0 0 10px var(--error-color);
+        }
+
+        /* No-selection prompt */
+        .select-prompt {
+            font-size: 0.85rem;
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <!-- TOP HUD -->
+    <div id="top-bar">
+        <div class="level-display">Token Valley (Stage 3)</div>
+        <div class="score-display">Score: <span id="player-score"></span></div>
+        <div class="hud-right">
+            <button id="btn-hint" class="btn btn-hint">Hint (-50 pts)</button>
+            <button id="btn-exit" class="btn btn-exit">Exit</button>
+        </div>
+    </div>
+
+    <!-- 4-PANEL GAME BOARD -->
+    <div class="game-board">
+
+        <!-- Panel 1: Source Code (Read-Only) -->
+        <div class="panel" id="panel-code">
+            <h3>Source Code</h3>
+            <pre id="code-display" class="code-block"></pre>
+        </div>
+
+        <!-- Panel 2: Mission Brief -->
+        <div class="panel" id="panel-mission">
+            <h3>Mission Brief</h3>
+            <p>Welcome to <strong>Token Valley</strong>! Now that you've identified tokens, it's time to <em>classify</em> each one.</p>
+            <p>Your task:</p>
+            <ul>
+                <li><strong>Click</strong> a token card below to select it.</li>
+                <li><strong>Choose</strong> the correct category from the buttons.</li>
+                <li>Classify <strong>all</strong> tokens, then click <strong>Verify</strong>.</li>
+            </ul>
+            <p style="margin-top: 10px;"><strong>Categories:</strong></p>
+            <p style="font-size: 0.85rem; line-height: 1.8;">
+                <span style="color:#e67e22; font-weight:700;">Keyword</span> · 
+                <span style="color:#3498db; font-weight:700;">Identifier</span> · 
+                <span style="color:#e74c3c; font-weight:700;">Operator</span> · 
+                <span style="color:#2ecc71; font-weight:700;">Number</span> · 
+                <span style="color:#95a5a6; font-weight:700;">Delimiter</span> · 
+                <span style="color:#f39c12; font-weight:700;">String</span> · 
+                <span style="color:#9b59b6; font-weight:700;">Function</span> · 
+                <span style="color:#1abc9c; font-weight:700;">Header</span>
+            </p>
+            <p style="margin-top: 10px; color: var(--error-color); font-weight: 600;">
+                You have 3 attempts. After 3 failures, the correct answer will be shown.
+            </p>
+        </div>
+
+        <!-- Panel 3: Interactive Area -->
+        <div class="panel" id="panel-interactive">
+            <h3>Token Classification</h3>
+
+            <!-- Category selection bar -->
+            <div class="category-bar" id="category-bar">
+                <span class="label">Assign:</span>
+                <span class="select-prompt" id="select-prompt">← Click a token first</span>
+            </div>
+
+            <!-- Token cards -->
+            <div class="token-card-grid" id="token-grid">
+                <!-- Injected by JS -->
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 15px; margin-top: 8px;">
+                <button id="btn-verify" class="btn btn-verify">Verify Classification</button>
+                <span id="attempt-display" class="attempt-counter">Attempt 0/3</span>
+            </div>
+        </div>
+
+        <!-- Panel 4: Output Console -->
+        <div class="panel" id="panel-output">
+            <h3>Output Console</h3>
+            <div id="output-msg" class="console-box">System ready. Select tokens and classify them...</div>
+        </div>
+
+    </div>
+
+    <!-- Entry Point -->
+    <script type="module" src="../../js/levels/stage3_main.js"></script>
+</body>
+</html>

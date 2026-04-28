@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compile-IT | Code Optimization</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/components.css">
+    <link rel="stylesheet" href="../../css/animations.css">
+    <style>
+        /* ===== SOURCE CODE PANEL ===== */
+        .source-code-block {
+            background: #0d0d0d;
+            color: #a5d6a7;
+            padding: 14px 16px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            border: 1px solid #333;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* ===== USER INPUT TEXTAREA ===== */
+        .code-textarea {
+            width: 100%;
+            flex: 1;
+            background: #0d0d0d;
+            color: #81d4fa;
+            padding: 14px 16px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            border: 2px solid #333;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .code-textarea:focus {
+            border-color: var(--score-color);
+        }
+
+        .code-textarea::placeholder {
+            color: #555;
+        }
+
+        /* ===== INPUT CONTROLS ===== */
+        .input-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+            flex-shrink: 0;
+        }
+
+        .btn-reset {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--border-color);
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-family: var(--font-main);
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: var(--border-color);
+            color: #fff;
+        }
+
+        /* ===== TECHNIQUE BADGES ===== */
+        .technique-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 8px 0;
+        }
+
+        .technique-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .technique-badge.constant {
+            background: rgba(76,175,80,0.15);
+            color: #66bb6a;
+            border: 1px solid rgba(76,175,80,0.3);
+        }
+
+        .technique-badge.algebraic {
+            background: rgba(33,150,243,0.15);
+            color: #42a5f5;
+            border: 1px solid rgba(33,150,243,0.3);
+        }
+
+        .technique-badge.deadcode {
+            background: rgba(239,83,80,0.15);
+            color: #ef5350;
+            border: 1px solid rgba(239,83,80,0.3);
+        }
+
+        /* ===== MISSION LIST ===== */
+        .mission-list {
+            margin: 6px 0;
+            padding-left: 18px;
+        }
+
+        .mission-list li {
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            line-height: 1.45;
+        }
+
+        .mission-list li strong {
+            color: var(--btn-color);
+        }
+
+        /* ===== CORRECT CODE REVEAL ===== */
+        .correct-reveal {
+            background: #0d0d0d;
+            color: #a5d6a7;
+            padding: 12px 14px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            border: 1px solid #2e7d32;
+            margin-top: 8px;
+        }
+
+        /* ===== HINT REVEAL IN CONSOLE ===== */
+        .hint-line {
+            color: #ffcc00;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- TOP HUD -->
+    <div id="top-bar">
+        <div class="level-display">Code Optimization (Stage 5)</div>
+        <div class="score-display">Score: <span id="player-score"></span></div>
+        <div class="hud-right">
+            <button id="btn-hint" class="btn btn-hint">Hint (-50 pts)</button>
+            <button id="btn-exit" class="btn btn-exit">Exit</button>
+        </div>
+    </div>
+
+    <!-- 4-PANEL GAME BOARD -->
+    <div class="game-board">
+
+        <!-- Panel 1: Source Code (Top Left) -->
+        <div class="panel" id="panel-source">
+            <h3>Source Code</h3>
+            <div class="source-code-block" id="source-display"></div>
+        </div>
+
+        <!-- Panel 2: Mission Brief (Top Right) -->
+        <div class="panel" id="panel-mission">
+            <h3>Mission Brief</h3>
+            <p>Welcome to <strong>Code Optimization</strong>! Your goal is to <em>simplify</em> the code on the left using compiler optimization techniques.</p>
+            <p><strong>Allowed optimizations:</strong></p>
+            <div class="technique-list" id="technique-list">
+                <!-- Filled by JS -->
+            </div>
+            <ul class="mission-list">
+                <li><strong>Constant Folding</strong> — evaluate constant expressions at compile time</li>
+                <li><strong>Dead Code Removal</strong> — remove variables that are never used</li>
+                <li><strong>Algebraic Simplification</strong> — simplify identity operations (x*1=x, x+0=x, x*0=0)</li>
+            </ul>
+            <p style="color:var(--error-color);font-weight:600;margin-top:6px;">3 attempts. After 3 failures the correct code is revealed.</p>
+        </div>
+
+        <!-- Panel 3: User Input (Bottom Left) -->
+        <div class="panel" id="panel-input">
+            <h3>Your Optimized Code</h3>
+            <textarea class="code-textarea" id="user-input" placeholder="Write your optimized version here..." spellcheck="false"></textarea>
+            <div class="input-controls">
+                <button id="btn-verify" class="btn btn-verify">Verify Optimization</button>
+                <span id="attempt-display" class="attempt-counter">Attempt 0/3</span>
+                <button id="btn-reset" class="btn-reset">Reset</button>
+            </div>
+        </div>
+
+        <!-- Panel 4: Output Console (Bottom Right) -->
+        <div class="panel" id="panel-output">
+            <h3>Output Console</h3>
+            <div id="output-msg" class="console-box">System ready. Apply optimizations and verify...</div>
+        </div>
+
+    </div>
+
+    <script type="module" src="../../js/levels/stage5_main.js"></script>
+</body>
+</html>

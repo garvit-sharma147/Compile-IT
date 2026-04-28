@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compile-IT | FIRST & FOLLOW Bridge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/components.css">
+    <link rel="stylesheet" href="../../css/animations.css">
+    <style>
+        /* ===== SOURCE GRAMMAR DISPLAY (reuse from Stage 6) ===== */
+        .grammar-display {
+            background: #0d0d0d;
+            color: #a5d6a7;
+            font-family: 'Courier New', monospace;
+            font-size: 0.92rem;
+            padding: 14px 16px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            white-space: pre-wrap;
+            line-height: 1.85;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .grammar-display .production-line {
+            padding: 2px 0;
+        }
+
+        .grammar-display .non-terminal {
+            color: #ff9800;
+            font-weight: 700;
+        }
+
+        .grammar-display .arrow {
+            color: #78909c;
+            margin: 0 4px;
+        }
+
+        .grammar-display .terminal-sym {
+            color: #81d4fa;
+        }
+
+        .grammar-display .pipe {
+            color: #ef5350;
+            font-weight: 700;
+            margin: 0 3px;
+        }
+
+        .grammar-display .epsilon {
+            color: #ce93d8;
+            font-style: italic;
+        }
+
+        /* ===== GRAMMAR LEGEND ===== */
+        .grammar-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.08);
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .legend-entry {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75rem;
+            color: var(--text-dark);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .legend-dot.nt  { background: #ff9800; }
+        .legend-dot.t   { background: #81d4fa; }
+        .legend-dot.eps { background: #ce93d8; }
+
+        /* ===== FIRST/FOLLOW TABLE ===== */
+        .ff-table-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+        }
+
+        .ff-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-main);
+        }
+
+        .ff-table thead th {
+            background: linear-gradient(135deg, #5a3d2b 0%, #7a5440 100%);
+            color: #fdf5e6;
+            padding: 10px 14px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            text-align: left;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .ff-table thead th:first-child {
+            width: 100px;
+            text-align: center;
+        }
+
+        .ff-table tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .ff-table tbody tr:nth-child(even) {
+            background: rgba(0,0,0,0.03);
+        }
+
+        .ff-table tbody tr:hover {
+            background: rgba(122,95,61,0.08);
+        }
+
+        .ff-table td {
+            padding: 6px 10px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        /* Non-terminal label cell */
+        .ff-label {
+            font-family: 'Courier New', monospace;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #ff9800;
+            text-align: center;
+            background: rgba(255,152,0,0.08);
+            min-width: 60px;
+        }
+
+        /* Input fields within table */
+        .ff-input {
+            width: 100%;
+            background: #0d0d0d;
+            color: #81d4fa;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            padding: 8px 10px;
+            border: 2px solid #444;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .ff-input:focus {
+            border-color: var(--score-color);
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
+        }
+
+        .ff-input::placeholder {
+            color: #555;
+            font-size: 0.8rem;
+        }
+
+        /* Validation feedback on cells */
+        .ff-input.correct {
+            border-color: #5a8e03;
+            background: #0d1a0d;
+            box-shadow: 0 0 6px rgba(90,142,3,0.3);
+        }
+
+        .ff-input.wrong {
+            border-color: #e74c3c;
+            background: #1a0d0d;
+            box-shadow: 0 0 6px rgba(231,76,60,0.3);
+        }
+
+        /* ===== INPUT CONTROLS ===== */
+        .input-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .btn-reset {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--border-color);
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-family: var(--font-main);
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: var(--border-color);
+            color: #fff;
+        }
+
+        /* ===== MISSION BRIEF RULES ===== */
+        .rule-block {
+            background: rgba(0,0,0,0.06);
+            border-left: 3px solid var(--btn-color);
+            padding: 8px 12px;
+            margin: 8px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.82rem;
+            line-height: 1.55;
+        }
+
+        .rule-block strong {
+            color: var(--btn-color);
+        }
+
+        .rule-block code {
+            background: rgba(0,0,0,0.1);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ===== FORMAT HINT ===== */
+        .format-hint {
+            font-size: 0.78rem;
+            color: #888;
+            margin-top: 6px;
+            padding: 6px 10px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 4px;
+        }
+
+        .format-hint code {
+            background: rgba(0,0,0,0.1);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ===== RESULT DISPLAY IN CONSOLE ===== */
+        .ff-result-row {
+            padding: 6px 0;
+            border-bottom: 1px solid #333;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .ff-result-row:last-child {
+            border-bottom: none;
+        }
+
+        .ff-result-nt {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: #ff9800;
+        }
+
+        .ff-result-correct {
+            color: #66bb6a;
+        }
+
+        .ff-result-wrong {
+            color: #ef5350;
+        }
+
+        .ff-set-display {
+            font-family: 'Courier New', monospace;
+            color: #a5d6a7;
+            background: #111;
+            padding: 4px 8px;
+            border-radius: 3px;
+            display: inline-block;
+            margin-top: 2px;
+            font-size: 0.82rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- TOP HUD -->
+    <div id="top-bar">
+        <div class="level-display">FIRST & FOLLOW Bridge (Stage 7)</div>
+        <div class="score-display">Score: <span id="player-score"></span></div>
+        <div class="hud-right">
+            <button id="btn-hint" class="btn btn-hint">Hint (-50 pts)</button>
+            <button id="btn-exit" class="btn btn-exit">Exit</button>
+        </div>
+    </div>
+
+    <!-- 4-PANEL GAME BOARD -->
+    <div class="game-board">
+
+        <!-- Panel 1: Source Grammar (Top Left) -->
+        <div class="panel" id="panel-grammar">
+            <h3>Source Grammar</h3>
+            <div class="grammar-display" id="grammar-display">
+                <!-- Grammar productions rendered by JS -->
+            </div>
+            <div class="grammar-legend">
+                <div class="legend-entry"><span class="legend-dot nt"></span> Non-terminal</div>
+                <div class="legend-entry"><span class="legend-dot t"></span> Terminal</div>
+                <div class="legend-entry"><span class="legend-dot eps"></span> Epsilon (ε)</div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Mission Brief (Top Right) -->
+        <div class="panel" id="panel-mission">
+            <h3>Mission Brief</h3>
+            <p>Welcome to the <strong>FIRST & FOLLOW Bridge</strong>! Compute the <em>FIRST</em> and <em>FOLLOW</em> sets for every non-terminal in the grammar.</p>
+
+            <div class="rule-block">
+                <strong>FIRST(X)</strong> — the set of terminals that can begin strings derived from X.<br>
+                • If <code>X → a...</code>, add <code>a</code> to FIRST(X)<br>
+                • If <code>X → Y...</code>, add FIRST(Y) to FIRST(X)<br>
+                • If X can derive ε, add <code>ε</code> to FIRST(X)
+            </div>
+
+            <div class="rule-block">
+                <strong>FOLLOW(X)</strong> — the set of terminals that can appear immediately after X.<br>
+                • Add <code>$</code> to FOLLOW(start symbol)<br>
+                • If <code>A → αXβ</code>, add FIRST(β)−{ε} to FOLLOW(X)<br>
+                • If <code>A → αX</code> or ε ∈ FIRST(β), add FOLLOW(A) to FOLLOW(X)
+            </div>
+
+            <div class="format-hint">
+                <strong>Input format:</strong> Comma-separated symbols. Example: <code>a, b</code><br>
+                Use <code>ε</code> for epsilon and <code>$</code> for end-of-input.
+            </div>
+
+            <p style="margin-top: 10px; color: var(--error-color); font-weight: 600;">
+                You have 3 attempts. After 3 failures, the correct answers will be shown.
+            </p>
+        </div>
+
+        <!-- Panel 3: User Input (Bottom Left) -->
+        <div class="panel" id="panel-input">
+            <h3>FIRST & FOLLOW Sets</h3>
+            <div class="ff-table-wrapper">
+                <table class="ff-table" id="ff-table">
+                    <thead>
+                        <tr>
+                            <th>NT</th>
+                            <th>FIRST</th>
+                            <th>FOLLOW</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ff-table-body">
+                        <!-- Rows generated dynamically by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="input-controls">
+                <button id="btn-verify" class="btn btn-verify">Verify Answer</button>
+                <span id="attempt-display" class="attempt-counter">Attempt 0/3</span>
+                <button id="btn-reset" class="btn-reset">Reset</button>
+            </div>
+        </div>
+
+        <!-- Panel 4: Output Console (Bottom Right) -->
+        <div class="panel" id="panel-output">
+            <h3>Output Console</h3>
+            <div id="output-msg" class="console-box">System ready. Fill in FIRST and FOLLOW sets, then click "Verify Answer"...</div>
+        </div>
+
+    </div>
+
+    <script type="module" src="../../js/levels/stage7_main.js"></script>
+</body>
+</html>

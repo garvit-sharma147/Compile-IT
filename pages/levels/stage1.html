@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compile-IT | Start Challenge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/components.css">
+    <link rel="stylesheet" href="../../css/animations.css">
+</head>
+<body>
+    <!-- TOP HUD -->
+    <div id="top-bar">
+        <div class="level-display">Start Challenge (Stage 1)</div>
+        <div class="score-display">Score: <span id="player-score"></span></div>
+        <div class="hud-right">
+            <button id="btn-hint" class="btn btn-hint">Hint (-50 pts)</button>
+            <button id="btn-exit" class="btn btn-exit">Exit</button>
+        </div>
+    </div>
+
+    <!-- 4-PANEL GAME BOARD -->
+    <div class="game-board">
+
+        <!-- Panel 1: Source Code Input -->
+        <div class="panel" id="panel-code">
+            <h3>1. Source Code</h3>
+            <p>Enter the C code you want to analyze through the compiler pipeline:</p>
+            <textarea id="c-code-input" class="input-box" rows="10" placeholder="Enter C code here...">int i = 0;
+while(i < 5){
+    i++;
+}</textarea>
+        </div>
+
+        <!-- Panel 2: Mission Brief -->
+        <div class="panel" id="panel-mission">
+            <h3>Mission Brief</h3>
+            <p>Welcome to <strong>Compile-IT</strong>! Before entering the compiler dungeon, you must configure your system.</p>
+            <p>Provide:</p>
+            <ul>
+                <li><strong>C Source Code</strong> — This code will be tokenized, parsed, and analyzed across all future stages.</li>
+                <li><strong>CFG Grammar</strong> — Define your grammar rules for the CFG analysis branch.</li>
+            </ul>
+            <p style="margin-top: 15px; color: var(--btn-color); font-weight: 600;">
+                After submission, your inputs will be locked and processed by the compiler engine.
+            </p>
+        </div>
+
+        <!-- Panel 3: Interactive Area (CFG Input + Submit) -->
+        <div class="panel" id="panel-interactive">
+            <h3>2. CFG Grammar</h3>
+            <p>Enter your Context-Free Grammar (Format: <code>S -> a A | b</code>):</p>
+            <textarea id="cfg-input" class="input-box" rows="6" placeholder="Enter CFG rules here...">S -> A B
+A -> a A | a
+B -> b B | b</textarea>
+            <button id="btn-submit" class="btn btn-verify" style="align-self: center; margin-top: 15px;">Submit & Lock</button>
+        </div>
+
+        <!-- Panel 4: Output Console -->
+        <div class="panel" id="panel-output">
+            <h3>Output Console</h3>
+            <div id="output-msg" class="console-box">System ready. Awaiting input configurations...</div>
+        </div>
+
+    </div>
+
+    <!-- Entry Point -->
+    <script type="module" src="../../js/levels/stage1_main.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compile-IT | Learn Compiler Design</title>
+    <meta name="description" content="Compile-IT: An interactive game to learn compiler design concepts through hands-on challenges.">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <!-- Top HUD (hidden on menu) -->
+    <div id="top-bar" class="hidden">
+        <div class="level-display">Menu</div>
+        <div class="score-display">Score: <span id="player-score">200</span></div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="app-root">
+        <!-- Menu view injected by app.js -->
+    </main>
+
+    <!-- Entry Point -->
+    <script type="module" src="js/core/app.js"></script>
+</body>
+</html>

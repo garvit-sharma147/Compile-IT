@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compile-IT | LL(1) Tower</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/components.css">
+    <link rel="stylesheet" href="../../css/animations.css">
+    <style>
+        /* ===== TREE CANVAS PANEL ===== */
+        .tree-panel {
+            overflow: auto;
+            position: relative;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(45,65,85,0.6) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(35,55,75,0.4) 0%, transparent 50%),
+                #1a2634;
+            border-radius: 8px;
+            border: 2px dashed var(--border-color);
+        }
+
+        .tree-canvas {
+            position: relative;
+            min-width: 100%;
+            min-height: 100%;
+            padding: 30px;
+        }
+
+        /* ===== TREE NODES ===== */
+        .tree-node {
+            position: absolute;
+            border-radius: 8px;
+            text-align: center;
+            cursor: default;
+            transition: all 0.25s ease;
+            z-index: 2;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .tree-node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        /* Non-terminal nodes */
+        .tree-node.non-terminal {
+            background: linear-gradient(135deg, #5a3d2b 0%, #7a5440 100%);
+            border: 2px solid #a07050;
+            color: #fdf5e6;
+            padding: 6px 12px;
+            min-width: 50px;
+        }
+
+        .tree-node.non-terminal .node-label {
+            font-weight: 800;
+            font-size: 0.82rem;
+            letter-spacing: 0.5px;
+        }
+
+        .tree-node.non-terminal:hover {
+            border-color: #d4a76a;
+            box-shadow: 0 6px 18px rgba(212,167,106,0.3);
+        }
+
+        /* Terminal nodes */
+        .tree-node.terminal {
+            background: linear-gradient(135deg, #d4a76a 0%, #c49555 100%);
+            border: 2px solid #b8863f;
+            color: #2c1a0e;
+            padding: 5px 10px;
+            min-width: 40px;
+        }
+
+        .tree-node.terminal .node-label {
+            font-family: 'Courier New', monospace;
+            font-weight: 800;
+            font-size: 0.88rem;
+            color: #2c1a0e;
+        }
+
+        .tree-node.terminal:hover {
+            border-color: #7a5f3d;
+            box-shadow: 0 6px 18px rgba(122,95,61,0.4);
+        }
+
+        /* Epsilon nodes */
+        .tree-node.epsilon-node {
+            background: linear-gradient(135deg, #7b1fa2 0%, #9c27b0 100%);
+            border: 2px solid #ce93d8;
+            color: #fff;
+            font-style: italic;
+        }
+
+        /* ===== SVG CONNECTOR LINES ===== */
+        .tree-svg {
+            position: absolute;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .tree-svg path {
+            fill: none;
+            stroke: #5a7a99;
+            stroke-width: 2;
+            opacity: 0.7;
+        }
+
+        /* ===== PARSING STEPS TABLE ===== */
+        .steps-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+        }
+
+        .steps-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Courier New', monospace;
+            font-size: 0.82rem;
+        }
+
+        .steps-table thead th {
+            background: linear-gradient(135deg, #5a3d2b 0%, #7a5440 100%);
+            color: #fdf5e6;
+            padding: 8px 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: left;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            font-family: var(--font-main);
+        }
+
+        .steps-table tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .steps-table tbody tr:nth-child(even) {
+            background: rgba(0,0,0,0.03);
+        }
+
+        .steps-table tbody tr:hover {
+            background: rgba(122,95,61,0.1);
+        }
+
+        .steps-table td {
+            padding: 5px 8px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .steps-table td:first-child {
+            text-align: center;
+            width: 40px;
+            font-weight: 700;
+            color: var(--btn-color);
+        }
+
+        /* Action column colors */
+        .action-production { color: #81d4fa; font-weight: 700; }
+        .action-match      { color: #66bb6a; font-weight: 700; }
+        .action-accept     { color: #66bb6a; font-weight: 700; }
+        .action-error      { color: #ef5350; font-weight: 700; }
+
+        /* ===== LL(1) TABLE IN CONSOLE ===== */
+        .ll1-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            margin: 8px 0;
+        }
+
+        .ll1-table th {
+            background: #333;
+            color: #81d4fa;
+            padding: 6px 8px;
+            text-align: center;
+            font-weight: 700;
+            border: 1px solid #555;
+        }
+
+        .ll1-table th:first-child {
+            color: #ff9800;
+        }
+
+        .ll1-table td {
+            padding: 5px 8px;
+            text-align: center;
+            border: 1px solid #444;
+            color: #a5d6a7;
+        }
+
+        .ll1-table td:first-child {
+            font-weight: 700;
+            color: #ff9800;
+            background: rgba(255,152,0,0.08);
+        }
+
+        .ll1-table td.empty-cell {
+            color: #555;
+        }
+
+        .ll1-table td.conflict-cell {
+            color: #ef5350;
+            background: rgba(231,76,60,0.1);
+            font-weight: 700;
+        }
+
+        /* ===== MISSION BRIEF EXTRAS ===== */
+        .rule-block {
+            background: rgba(0,0,0,0.06);
+            border-left: 3px solid var(--btn-color);
+            padding: 8px 12px;
+            margin: 8px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.82rem;
+            line-height: 1.55;
+        }
+
+        .rule-block strong {
+            color: var(--btn-color);
+        }
+
+        .rule-block code {
+            background: rgba(0,0,0,0.1);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ===== COMPLETE BAR ===== */
+        .complete-bar {
+            margin-top: 10px;
+            flex-shrink: 0;
+        }
+
+        /* ===== DIAGNOSTIC NOTICE ===== */
+        .diagnostic-notice {
+            background: rgba(231,76,60,0.1);
+            border: 1px solid #ef5350;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            font-size: 0.82rem;
+            color: #ef9a9a;
+        }
+
+        .diagnostic-notice strong {
+            color: #ef5350;
+        }
+
+        .fallback-notice {
+            background: rgba(255,152,0,0.1);
+            border: 1px solid #ff9800;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            font-size: 0.82rem;
+            color: #ffe0b2;
+        }
+
+        .fallback-notice strong {
+            color: #ff9800;
+        }
+
+        /* ===== INPUT STRING DISPLAY ===== */
+        .input-string-display {
+            font-family: 'Courier New', monospace;
+            background: #0d0d0d;
+            color: #81d4fa;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            font-size: 0.9rem;
+            margin: 6px 0;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!-- TOP HUD -->
+    <div id="top-bar">
+        <div class="level-display">LL(1) Tower (Stage 8)</div>
+        <div class="score-display">Score: <span id="player-score"></span></div>
+        <div class="hud-right">
+            <button id="btn-hint" class="btn btn-hint">Hint (-50 pts)</button>
+            <button id="btn-exit" class="btn btn-exit">Exit</button>
+        </div>
+    </div>
+
+    <!-- 4-PANEL GAME BOARD -->
+    <div class="game-board">
+
+        <!-- Panel 1: Parse Tree Visualization (Top Left) -->
+        <div class="panel tree-panel" id="panel-tree">
+            <div class="tree-canvas" id="tree-canvas">
+                <svg class="tree-svg" id="tree-svg"></svg>
+                <!-- Tree nodes rendered by JS -->
+            </div>
+        </div>
+
+        <!-- Panel 2: Mission Brief (Top Right) -->
+        <div class="panel" id="panel-mission">
+            <h3>Mission Brief</h3>
+            <p>Welcome to the <strong>LL(1) Tower</strong>! Watch how predictive parsing works using FIRST and FOLLOW sets.</p>
+
+            <div class="rule-block">
+                <strong>LL(1)</strong> stands for:<br>
+                • <strong>L</strong> — Left-to-right scanning of input<br>
+                • <strong>L</strong> — Leftmost derivation<br>
+                • <strong>1</strong> — One symbol of lookahead
+            </div>
+
+            <div class="rule-block">
+                <strong>Parsing Table</strong> — maps (non-terminal, lookahead) to a production rule.<br>
+                <strong>Stack</strong> — tracks expected symbols, starting with <code>S $</code>.<br>
+                <strong>Input Buffer</strong> — the string being parsed, ending with <code>$</code>.
+            </div>
+
+            <p style="font-size:0.82rem;color:#888;margin-top:8px;">
+                The tree, steps, and parsing table are generated <em>automatically</em>. Study the derivation to understand how LL(1) parsing works.
+            </p>
+
+            <div class="complete-bar" id="complete-bar">
+                <button id="btn-complete" class="btn btn-verify">Complete & Continue →</button>
+            </div>
+        </div>
+
+        <!-- Panel 3: Parsing Steps / Stack View (Bottom Left) -->
+        <div class="panel" id="panel-steps">
+            <h3>Parsing Steps</h3>
+            <div class="steps-wrapper" id="steps-wrapper">
+                <table class="steps-table" id="steps-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Stack</th>
+                            <th>Input</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="steps-body">
+                        <!-- Steps rendered by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top:6px;font-size:0.75rem;color:#888;" id="parse-input-label">
+                Parsing string: <span class="input-string-display" id="parsed-string">—</span>
+            </div>
+        </div>
+
+        <!-- Panel 4: Output Console (Bottom Right) -->
+        <div class="panel" id="panel-output">
+            <h3>Output Console</h3>
+            <div id="output-msg" class="console-box">Initializing LL(1) parsing engine...</div>
+        </div>
+
+    </div>
+
+    <script type="module" src="../../js/levels/stage8_main.js"></script>
+</body>
+</html>

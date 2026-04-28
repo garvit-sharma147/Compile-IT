@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compile-IT | Compiler Kingdom Map</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/map.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <!-- Top Bar -->
+    <div id="top-bar">
+        <div class="score-display">Score: <span id="player-score">200</span></div>
+        <div class="title-display">Compiler Kingdom Map</div>
+        <button id="btn-menu" class="btn">Back to Menu</button>
+    </div>
+
+    <!-- Map Container -->
+    <div id="map-container">
+        <div id="levels-container">
+            <canvas id="map-canvas"></canvas>
+            <!-- Level nodes injected by map.js -->
+        </div>
+    </div>
+
+    <!-- Entry Point -->
+    <script type="module" src="js/map/map.js"></script>
+</body>
+</html>

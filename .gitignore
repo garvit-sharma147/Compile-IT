@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Build artifacts
+dist/
+build/
+.cache/
+
+# Environment
+.env
+.env.local
+
+# Gemini AI config (development only)
+.gemini/
