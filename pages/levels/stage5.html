@@ -10,7 +10,42 @@
     <link rel="stylesheet" href="../../css/components.css">
     <link rel="stylesheet" href="../../css/animations.css">
     <style>
-        /* ===== SOURCE CODE PANEL ===== */
+        /* ===== CODE TEXTAREAS ===== */
+        .code-textarea {
+            width: 100%;
+            flex: 1;
+            background: #0d0d0d;
+            color: #a5d6a7;
+            padding: 14px 16px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            border: 2px solid #333;
+            resize: none;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .code-textarea:focus {
+            border-color: var(--score-color);
+        }
+
+        .code-textarea::placeholder {
+            color: #555;
+        }
+
+        .code-textarea.locked {
+            color: #81d4fa;
+            border-color: #2e7d32;
+            cursor: default;
+        }
+
+        .code-textarea.optimized-input {
+            color: #81d4fa;
+        }
+
+        /* ===== READ-ONLY SOURCE DISPLAY ===== */
         .source-code-block {
             background: #0d0d0d;
             color: #a5d6a7;
@@ -20,34 +55,9 @@
             font-size: 0.88rem;
             line-height: 1.6;
             white-space: pre-wrap;
-            border: 1px solid #333;
+            border: 2px solid #2e7d32;
             flex: 1;
             overflow-y: auto;
-        }
-
-        /* ===== USER INPUT TEXTAREA ===== */
-        .code-textarea {
-            width: 100%;
-            flex: 1;
-            background: #0d0d0d;
-            color: #81d4fa;
-            padding: 14px 16px;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.88rem;
-            line-height: 1.6;
-            border: 2px solid #333;
-            resize: none;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .code-textarea:focus {
-            border-color: var(--score-color);
-        }
-
-        .code-textarea::placeholder {
-            color: #555;
         }
 
         /* ===== INPUT CONTROLS ===== */
@@ -128,6 +138,29 @@
             color: var(--btn-color);
         }
 
+        /* ===== PHASE INDICATOR ===== */
+        .phase-indicator {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .phase-indicator.phase1 {
+            background: rgba(255,183,77,0.2);
+            color: #ffb74d;
+            border: 1px solid rgba(255,183,77,0.4);
+        }
+
+        .phase-indicator.phase2 {
+            background: rgba(76,175,80,0.2);
+            color: #66bb6a;
+            border: 1px solid rgba(76,175,80,0.4);
+        }
+
         /* ===== CORRECT CODE REVEAL ===== */
         .correct-reveal {
             background: #0d0d0d;
@@ -142,10 +175,19 @@
             margin-top: 8px;
         }
 
-        /* ===== HINT REVEAL IN CONSOLE ===== */
         .hint-line {
             color: #ffcc00;
             margin-bottom: 4px;
+        }
+
+        /* ===== DISABLED STATE ===== */
+        .panel.disabled-panel {
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        .panel.disabled-panel .code-textarea {
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -163,43 +205,55 @@
     <!-- 4-PANEL GAME BOARD -->
     <div class="game-board">
 
-        <!-- Panel 1: Source Code (Top Left) -->
+        <!-- Panel 1: Source Code Input (Top Left) -->
         <div class="panel" id="panel-source">
-            <h3>Source Code</h3>
-            <div class="source-code-block" id="source-display"></div>
+            <h3><span class="phase-indicator phase1" id="phase1-badge">PHASE 1</span> Source Code</h3>
+            <!-- Phase 1: Editable textarea -->
+            <textarea class="code-textarea" id="source-input"
+                placeholder="Enter your C source code here...&#10;&#10;Example:&#10;int x = 3 + 4 * 2;&#10;int y = x * 1;&#10;int unused = 99;&#10;int result = x + y;"
+                spellcheck="false"></textarea>
+            <!-- Phase 2: Read-only display (hidden initially) -->
+            <div class="source-code-block hidden" id="source-display"></div>
+            <div class="input-controls" id="submit-controls">
+                <button id="btn-submit" class="btn btn-verify">Submit Code</button>
+            </div>
         </div>
 
         <!-- Panel 2: Mission Brief (Top Right) -->
         <div class="panel" id="panel-mission">
             <h3>Mission Brief</h3>
-            <p>Welcome to <strong>Code Optimization</strong>! Your goal is to <em>simplify</em> the code on the left using compiler optimization techniques.</p>
-            <p><strong>Allowed optimizations:</strong></p>
-            <div class="technique-list" id="technique-list">
-                <!-- Filled by JS -->
+            <p>Welcome to <strong>Code Optimization</strong>! Enter your own C code, then apply optimization techniques to produce a cleaner version.</p>
+            <p><strong>Optimization Techniques:</strong></p>
+            <div class="technique-list">
+                <span class="technique-badge constant">Constant Folding</span>
+                <span class="technique-badge algebraic">Algebraic Simplification</span>
+                <span class="technique-badge deadcode">Dead Code Removal</span>
             </div>
             <ul class="mission-list">
-                <li><strong>Constant Folding</strong> — evaluate constant expressions at compile time</li>
-                <li><strong>Dead Code Removal</strong> — remove variables that are never used</li>
-                <li><strong>Algebraic Simplification</strong> — simplify identity operations (x*1=x, x+0=x, x*0=0)</li>
+                <li><strong>Constant Folding</strong> — evaluate constant expressions at compile time (e.g. <code>3+4*2</code> → <code>11</code>)</li>
+                <li><strong>Dead Code Removal</strong> — remove variables that are declared but never used</li>
+                <li><strong>Algebraic Simplification</strong> — simplify identity operations (<code>x*1=x</code>, <code>x+0=x</code>, <code>x*0=0</code>)</li>
             </ul>
-            <p style="color:var(--error-color);font-weight:600;margin-top:6px;">3 attempts. After 3 failures the correct code is revealed.</p>
+            <p style="color:var(--error-color);font-weight:600;margin-top:6px;">3 attempts after submission. After 3 failures the correct code is revealed.</p>
         </div>
 
-        <!-- Panel 3: User Input (Bottom Left) -->
-        <div class="panel" id="panel-input">
-            <h3>Your Optimized Code</h3>
-            <textarea class="code-textarea" id="user-input" placeholder="Write your optimized version here..." spellcheck="false"></textarea>
+        <!-- Panel 3: Optimized Code Input (Bottom Left) -->
+        <div class="panel disabled-panel" id="panel-optimized">
+            <h3><span class="phase-indicator phase2" id="phase2-badge">PHASE 2</span> Your Optimized Code</h3>
+            <textarea class="code-textarea optimized-input" id="user-optimized"
+                placeholder="Write your optimized version here after submitting code above..."
+                spellcheck="false" disabled></textarea>
             <div class="input-controls">
-                <button id="btn-verify" class="btn btn-verify">Verify Optimization</button>
+                <button id="btn-verify" class="btn btn-verify" disabled>Verify Optimization</button>
                 <span id="attempt-display" class="attempt-counter">Attempt 0/3</span>
-                <button id="btn-reset" class="btn-reset">Reset</button>
+                <button id="btn-reset" class="btn-reset" disabled>Reset</button>
             </div>
         </div>
 
         <!-- Panel 4: Output Console (Bottom Right) -->
         <div class="panel" id="panel-output">
             <h3>Output Console</h3>
-            <div id="output-msg" class="console-box">System ready. Apply optimizations and verify...</div>
+            <div id="output-msg" class="console-box">System ready. Enter your source code and click "Submit Code" to begin...</div>
         </div>
 
     </div>
