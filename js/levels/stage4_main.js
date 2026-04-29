@@ -39,6 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
         showError('Could not generate a parse tree for this input. The code may be invalid or unsupported.');
         return;
     }
+    // Also check if STMT_LIST is empty (no actual statements parsed)
+    const stmtList = tree.children[0];
+    if (stmtList && stmtList.label === 'STMT_LIST' && (!stmtList.children || stmtList.children.length === 0)) {
+        showError('No parseable statements found in the input code.');
+        return;
+    }
 
     // ===== DISPLAY EXPLANATION =====
     if (engine.explanation && engine.explanation.length) {
