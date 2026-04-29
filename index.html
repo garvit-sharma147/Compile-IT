@@ -23,6 +23,12 @@
         <!-- Menu view injected by app.js -->
     </main>
 
+    <!-- Reset all game state on every load — fresh session guaranteed -->
+    <script>
+        ['compileit_score','compileit_unlocked','compileit_completed','compileit_engine_data']
+            .forEach(k => localStorage.removeItem(k));
+    </script>
+
     <!-- Entry Point -->
     <script type="module" src="js/core/app.js"></script>
 </body>
