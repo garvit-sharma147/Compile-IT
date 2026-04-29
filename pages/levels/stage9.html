@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compile-IT | Symbol Table City</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/components.css">
+    <link rel="stylesheet" href="../../css/animations.css">
+    <style>
+        /* ===== SOURCE CODE DISPLAY ===== */
+        .code-display {
+            background: #0d0d0d;
+            font-family: 'Courier New', monospace;
+            font-size: 0.88rem;
+            padding: 14px 16px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            white-space: pre-wrap;
+            line-height: 1.85;
+            flex: 1;
+            overflow-y: auto;
+            color: #e0e0e0;
+            counter-reset: line;
+        }
+
+        .code-line {
+            display: block;
+            padding: 1px 0;
+        }
+
+        .code-line::before {
+            counter-increment: line;
+            content: counter(line);
+            display: inline-block;
+            width: 24px;
+            margin-right: 14px;
+            text-align: right;
+            color: #555;
+            font-size: 0.78rem;
+            user-select: none;
+        }
+
+        .code-keyword  { color: #c792ea; font-weight: 700; }
+        .code-type     { color: #82aaff; font-weight: 700; }
+        .code-number   { color: #f78c6c; }
+        .code-string   { color: #c3e88d; }
+        .code-operator { color: #89ddff; }
+        .code-ident    { color: #eeffff; }
+        .code-func     { color: #82aaff; }
+        .code-delim    { color: #89ddff; }
+
+        /* ===== SYMBOL TABLE ===== */
+        .st-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+        }
+
+        .st-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-main);
+        }
+
+        .st-table thead th {
+            background: linear-gradient(135deg, #5a3d2b 0%, #7a5440 100%);
+            color: #fdf5e6;
+            padding: 8px 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-align: left;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .st-table tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .st-table tbody tr:nth-child(even) {
+            background: rgba(0,0,0,0.03);
+        }
+
+        .st-table tbody tr:hover {
+            background: rgba(122,95,61,0.08);
+        }
+
+        .st-table td {
+            padding: 5px 8px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 0.85rem;
+        }
+
+        /* Pre-filled (read-only) cell */
+        .st-fixed {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #5a3d2b;
+            background: rgba(0,0,0,0.03);
+        }
+
+        /* Editable input cells */
+        .st-input {
+            width: 100%;
+            background: #0d0d0d;
+            color: #81d4fa;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            padding: 6px 8px;
+            border: 2px solid #444;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .st-input:focus {
+            border-color: var(--score-color);
+            box-shadow: 0 0 8px rgba(255,215,0,0.2);
+        }
+
+        .st-input::placeholder {
+            color: #555;
+            font-size: 0.78rem;
+        }
+
+        .st-input.correct {
+            border-color: #5a8e03;
+            background: #0d1a0d;
+            box-shadow: 0 0 6px rgba(90,142,3,0.3);
+        }
+
+        .st-input.wrong {
+            border-color: #e74c3c;
+            background: #1a0d0d;
+            box-shadow: 0 0 6px rgba(231,76,60,0.3);
+        }
+
+        /* ===== CONTROLS ===== */
+        .input-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .btn-reset {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--border-color);
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-family: var(--font-main);
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: var(--border-color);
+            color: #fff;
+        }
+
+        /* ===== MISSION BRIEF ===== */
+        .rule-block {
+            background: rgba(0,0,0,0.06);
+            border-left: 3px solid var(--btn-color);
+            padding: 8px 12px;
+            margin: 8px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.82rem;
+            line-height: 1.55;
+        }
+
+        .rule-block strong { color: var(--btn-color); }
+
+        .rule-block code {
+            background: rgba(0,0,0,0.1);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ===== RESULT TABLE IN CONSOLE ===== */
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            margin: 8px 0;
+        }
+
+        .result-table th {
+            background: #333;
+            color: #81d4fa;
+            padding: 5px 8px;
+            text-align: left;
+            border: 1px solid #555;
+        }
+
+        .result-table td {
+            padding: 4px 8px;
+            border: 1px solid #444;
+            color: #a5d6a7;
+        }
+    </style>
+</head>
+<body>
+    <!-- TOP HUD -->
+    <div id="top-bar">
+        <div class="level-display">Symbol Table City (Stage 9)</div>
+        <div class="score-display">Score: <span id="player-score"></span></div>
+        <div class="hud-right">
+            <button id="btn-hint" class="btn btn-hint">Hint (-50 pts)</button>
+            <button id="btn-exit" class="btn btn-exit">Exit</button>
+        </div>
+    </div>
+
+    <!-- 4-PANEL GAME BOARD -->
+    <div class="game-board">
+
+        <!-- Panel 1: Source Code (Top Left) -->
+        <div class="panel" id="panel-code">
+            <h3>Source Code</h3>
+            <div class="code-display" id="code-display">
+                <!-- Code rendered by JS -->
+            </div>
+        </div>
+
+        <!-- Panel 2: Mission Brief (Top Right) -->
+        <div class="panel" id="panel-mission">
+            <h3>Mission Brief</h3>
+            <p>Welcome to <strong>Symbol Table City</strong>! Complete the symbol table by identifying properties of variables in the source code.</p>
+
+            <div class="rule-block">
+                <strong>Symbol Table</strong> — a compiler data structure that records information about every identifier.<br>
+                Each entry tracks:<br>
+                • <code>Identifier</code> — variable name<br>
+                • <code>Type</code> — data type (int, float, etc.)<br>
+                • <code>Value</code> — assigned value (or <code>—</code>)<br>
+                • <code>Scope</code> — global or local<br>
+                • <code>Line</code> — line of declaration
+            </div>
+
+            <div class="rule-block">
+                <strong>Scope Rules:</strong><br>
+                • Variables declared outside <code>{ }</code> → <code>global</code><br>
+                • Variables declared inside <code>{ }</code> → <code>local</code>
+            </div>
+
+            <p style="margin-top:8px;color:var(--error-color);font-weight:600;">
+                You have 3 attempts. After 3 failures, the correct table will be revealed.
+            </p>
+        </div>
+
+        <!-- Panel 3: Symbol Table Input (Bottom Left) -->
+        <div class="panel" id="panel-input">
+            <h3>Symbol Table</h3>
+            <div class="st-wrapper">
+                <table class="st-table" id="st-table">
+                    <thead>
+                        <tr>
+                            <th>Identifier</th>
+                            <th>Type</th>
+                            <th>Value</th>
+                            <th>Scope</th>
+                            <th>Line</th>
+                        </tr>
+                    </thead>
+                    <tbody id="st-body">
+                        <!-- Rows generated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="input-controls">
+                <button id="btn-verify" class="btn btn-verify">Verify Table</button>
+                <span id="attempt-display" class="attempt-counter">Attempt 0/3</span>
+                <button id="btn-reset" class="btn-reset">Reset</button>
+            </div>
+        </div>
+
+        <!-- Panel 4: Output Console (Bottom Right) -->
+        <div class="panel" id="panel-output">
+            <h3>Output Console</h3>
+            <div id="output-msg" class="console-box">System ready. Analyze the source code and fill in the missing fields...</div>
+        </div>
+
+    </div>
+
+    <script type="module" src="../../js/levels/stage9_main.js"></script>
+</body>
+</html>
