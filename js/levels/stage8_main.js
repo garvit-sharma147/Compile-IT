@@ -506,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
         completeBtn.disabled = true;
         completeBtn.innerText = 'COMPLETED ✓';
         completeLevel(8);
-        unlockLevel(9);
+        // Final stage on the CFG branch — no next level to unlock
         setTimeout(() => { fadeTransition(() => { window.location.href = '../../map.html'; }); }, 2000);
     });
 

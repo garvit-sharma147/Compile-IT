@@ -2,7 +2,7 @@
 
 > **An interactive web game to learn compiler design concepts through hands-on challenges.**
 
-Compile-IT transforms abstract compiler design theory into an engaging, stage-based adventure. Players progress through 9 stages — each teaching a core concept from tokenization to LL(1) parsing — by solving interactive puzzles with real-time visual feedback.
+Compile-IT transforms abstract compiler design theory into an engaging, stage-based adventure. Players progress through 8 stages — each teaching a core concept from tokenization to LL(1) parsing — by solving interactive puzzles with real-time visual feedback.
 
 ---
 
@@ -48,7 +48,6 @@ Observe automatic LL(1) predictive parsing with parse tree, step-by-step stack t
 | 6 | **Grammar Temple** | CFG | String Validation | Test strings against a CFG |
 | 7 | **FIRST & FOLLOW Bridge** | CFG | FIRST/FOLLOW Sets | Compute and verify set entries |
 | 8 | **LL(1) Tower** | CFG | Predictive Parsing | Observe LL(1) parsing demonstration |
-| 9 | **Symbol Table City** | CFG | Symbol Tables | *(Coming soon)* |
 
 ---
 

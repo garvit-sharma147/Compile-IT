@@ -1,6 +1,6 @@
 // js/engine/global_engine.js — Central computation engine
 // Phase 1: Only tokenization + classification
-// Future phases will add AST, FIRST/FOLLOW, LL(1), Symbol Table
+// Future phases will add AST, FIRST/FOLLOW, LL(1)
 
 import { saveEngineData, getEngineData } from '../utils/storage.js';
 

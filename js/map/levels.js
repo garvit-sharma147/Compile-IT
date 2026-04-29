@@ -1,4 +1,4 @@
-// js/map/levels.js — 9 level definitions with URL field (data-driven routing)
+// js/map/levels.js — 8 level definitions with URL field (data-driven routing)
 export const levels = [
     // Stage 1: Start Challenge (root node, center)
     {
@@ -73,17 +73,8 @@ export const levels = [
         name: "LL(1) Tower",
         x: 300,
         y: 360,
-        next: [9],
-        url: "pages/levels/stage8.html",
-        branch: "CFG"
-    },
-    {
-        id: 9,
-        name: "Symbol Table City",
-        x: 340,
-        y: 230,
         next: [],
-        url: "pages/levels/stage9.html",
+        url: "pages/levels/stage8.html",
         branch: "CFG"
     }
 ];
