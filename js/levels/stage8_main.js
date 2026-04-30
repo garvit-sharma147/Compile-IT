@@ -8,7 +8,7 @@ import { fadeTransition } from '../ui/animations.js';
 
 const EPSILON = 'ε';
 const END = '$';
-const FALLBACK_GRAMMAR = "S -> A B\nA -> a A | a\nB -> b B | b";
+const FALLBACK_GRAMMAR = "S -> A B\nA -> a A | epsilon\nB -> b B | C";
 
 // ===== GRAMMAR PARSER (reused) =====
 function parseGrammar(cfgText) {

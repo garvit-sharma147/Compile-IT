@@ -149,8 +149,22 @@ class Parser {
         const tok = this.peek();
         if (tok === null) return null;
 
-        // Declaration: type keyword followed by identifier
+        // Preprocessor directive (#include, #define) — captured as one token
+        if (this.peekType() === 'Directive') {
+            return this.parseDirective();
+        }
+
+        // Declaration OR Function Definition: type keyword
         if (TYPE_KEYWORDS.has(tok)) {
+            // Look-ahead: type [*] identifier ( → function definition
+            // type [*] identifier (= | ; | [ | ,) → declaration
+            let offset = 1;                                     // skip type
+            if (this.tokens[this.pos + offset] === '*') offset++; // skip optional *
+            const namePos = this.pos + offset;                  // identifier position
+            const afterName = this.tokens[namePos + 1];         // token after name
+            if (afterName === '(') {
+                return this.parseFuncDef();
+            }
             return this.parseDeclStmt();
         }
 
@@ -183,8 +197,12 @@ class Parser {
         const typeNode = this.consume(); // type keyword (int, float, etc.)
         node.children.push(typeNode);
 
-        // Could be multiple declarators: int a = 1, b = 2;
-        // For simplicity, handle single declarator with optional init
+        // Pointer declaration: int *ptr
+        // * is only treated as pointer marker here (after type), never in expressions
+        if (this.check('*')) {
+            node.children.push(this.consume()); // '*' as PTR_OP
+        }
+
         const idNode = this.consume(); // identifier
         if (idNode) node.children.push(idNode);
 
@@ -206,12 +224,103 @@ class Parser {
         // Semicolon
         if (this.check(';')) node.children.push(this.consume());
 
+        const isPtr = node.children.some(c => c.value === '*');
         this.explanations.push({
-            title: `Declaration: ${typeNode ? typeNode.value : '?'} ${idNode ? idNode.value : '?'}`,
-            text: `Declares a variable <code>${idNode ? idNode.value : '?'}</code> of type <code>${typeNode ? typeNode.value : '?'}</code>.` +
-                  (node.children.some(c => c.value === '=') ? ' The variable is initialized with a value.' : '')
+            title: `Declaration: ${typeNode ? typeNode.value : '?'}${isPtr ? ' *' : ''} ${idNode ? idNode.value : '?'}`,
+            text: `Declares a ${isPtr ? '<strong>pointer</strong> variable' : 'variable'} <code>${idNode ? idNode.value : '?'}</code> of type <code>${typeNode ? typeNode.value : '?'}${isPtr ? ' *' : ''}</code>.` +
+                (node.children.some(c => c.value === '=') ? ' The variable is initialized with a value.' : '')
         });
 
+        return node;
+    }
+
+    // ── DIRECTIVE ───────────────────────────────────────
+
+    parseDirective() {
+        const node = nt('DIRECTIVE');
+        const dir = this.consume(); // entire '#include <stdio.h>' or '#define ...' token
+        node.children.push(dir);
+
+        const isInclude = dir.value.startsWith('#include');
+        this.explanations.push({
+            title: `Preprocessor: ${dir.value.split(' ')[0]}`,
+            text: isInclude
+                ? `Includes an external header file. The declarations inside it (like <code>printf</code>) become available to the program.`
+                : `Defines a compile-time macro. The identifier is replaced with the value everywhere it appears before compilation.`
+        });
+
+        return node;
+    }
+
+    // ── FUNC_DEF ────────────────────────────────────────
+
+    parseFuncDef() {
+        const node = nt('FUNC_DEF');
+
+        // Return type
+        const typeNode = this.consume();
+        node.children.push(typeNode);
+
+        // Optional pointer return type: int *foo()
+        if (this.check('*')) node.children.push(this.consume());
+
+        // Function name
+        const nameNode = this.consume();
+        if (nameNode) node.children.push(nameNode);
+
+        // Parameter list
+        if (this.check('(')) node.children.push(this.consume()); // '('
+        const params = this.parseParamList();
+        if (params.children.length > 0) node.children.push(params);
+        if (this.check(')')) node.children.push(this.consume()); // ')'
+
+        // Function body OR prototype semicolon
+        if (this.check('{')) {
+            node.children.push(this.parseBlock());
+        } else if (this.check(';')) {
+            node.label = 'FUNC_PROTO';
+            node.children.push(this.consume()); // ';'
+        }
+
+        const funcName = nameNode ? nameNode.value : '?';
+        this.explanations.push({
+            title: `Function: ${funcName}()`,
+            text: node.label === 'FUNC_PROTO'
+                ? `Forward declaration (prototype) of function <code>${funcName}</code>. Tells the compiler the signature before the body is defined.`
+                : `Defines function <code>${funcName}</code> with its return type, parameter list, and body block.`
+        });
+
+        return node;
+    }
+
+    // ── PARAM_LIST ──────────────────────────────────────
+
+    parseParamList() {
+        const node = nt('PARAM_LIST');
+        if (this.check(')') || this.check(';') || this.atEnd()) return node;
+
+        // Handle void as empty param list: foo(void)
+        if (this.check('void') && (this.tokens[this.pos + 1] === ')')) {
+            node.children.push(this.consume()); // 'void'
+            return node;
+        }
+
+        node.children.push(this.parseParam());
+        while (this.check(',')) {
+            node.children.push(this.consume()); // ','
+            node.children.push(this.parseParam());
+        }
+        return node;
+    }
+
+    parseParam() {
+        const node = nt('PARAM');
+        // Type keyword
+        if (TYPE_KEYWORDS.has(this.peek())) node.children.push(this.consume());
+        // Optional pointer
+        if (this.check('*')) node.children.push(this.consume());
+        // Parameter name (optional — e.g. prototypes can omit it)
+        if (this.peekType() === 'Identifier') node.children.push(this.consume());
         return node;
     }
 
@@ -478,9 +587,9 @@ class Parser {
     parseAdditive() {
         let left = this.parseMultiplicative();
         while (this.peek() && ADDITIVE_OPS.has(this.peek()) &&
-               // Disambiguate: don't eat '+' if it's actually '++'
-               !(this.peek() === '+' && this.pos + 1 < this.tokens.length && this.tokens[this.pos] === '++') &&
-               !(this.peek() === '-' && this.pos + 1 < this.tokens.length && this.tokens[this.pos] === '--')) {
+            // Disambiguate: don't eat '+' if it's actually '++'
+            !(this.peek() === '+' && this.pos + 1 < this.tokens.length && this.tokens[this.pos] === '++') &&
+            !(this.peek() === '-' && this.pos + 1 < this.tokens.length && this.tokens[this.pos] === '--')) {
             const node = nt('ADD_EXPR');
             node.children.push(left);
             node.children.push(this.consume()); // '+' or '-'
@@ -504,16 +613,15 @@ class Parser {
 
     parseUnary() {
         const tok = this.peek();
-        // Prefix operators: !, -, ++, --
-        if (tok === '!' || tok === '++' || tok === '--') {
+        // Prefix operators: !, ++, --, & (address-of)
+        if (tok === '!' || tok === '++' || tok === '--' || tok === '&') {
             const node = nt('UNARY_EXPR');
-            node.children.push(this.consume());
+            node.children.push(this.consume()); // the operator
             node.children.push(this.parseUnary());
             return node;
         }
         // Unary minus (only if not a binary minus — handled contextually)
         if (tok === '-' && this.peekType() === 'Operator') {
-            // Check if previous context suggests unary
             const node = nt('UNARY_EXPR');
             node.children.push(this.consume());
             node.children.push(this.parseUnary());

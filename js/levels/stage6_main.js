@@ -274,21 +274,21 @@ function generateSampleString(grammar, maxDepth = 15) {
 
 
 // ===================================================================
-//  DOM READY — Wire up the stage UI
+//   Wire up the stage UI
 // ===================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
     updateScoreUI();
 
-    // DOM references
-    const grammarDisplay  = document.getElementById('grammar-display');
-    const stringInput     = document.getElementById('string-input');
-    const consoleBox      = document.getElementById('output-msg');
-    const validateBtn     = document.getElementById('btn-validate');
-    const clearBtn        = document.getElementById('btn-clear');
-    const counterDisplay  = document.getElementById('validation-counter');
-    const completeBar     = document.getElementById('complete-bar');
-    const completeBtn     = document.getElementById('btn-complete');
+    //grammar display
+    const grammarDisplay = document.getElementById('grammar-display');
+    const stringInput = document.getElementById('string-input');
+    const consoleBox = document.getElementById('output-msg');
+    const validateBtn = document.getElementById('btn-validate');
+    const clearBtn = document.getElementById('btn-clear');
+    const counterDisplay = document.getElementById('validation-counter');
+    const completeBar = document.getElementById('complete-bar');
+    const completeBtn = document.getElementById('btn-complete');
 
     let validationCount = 0;
     let firstAcceptedDone = false;

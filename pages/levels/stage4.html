@@ -109,6 +109,32 @@
             box-shadow: 0 6px 18px rgba(122,95,61,0.4);
         }
 
+        /* ===== NEW NODE TYPE COLOURS ===== */
+        /* Preprocessor directives — muted purple */
+        .tree-node[data-nodetype="DIRECTIVE"] {
+            background: linear-gradient(135deg, #3d2b4f, #2e2040);
+            border-color: #7b5ea7;
+        }
+        .tree-node[data-nodetype="DIRECTIVE"] .node-label { color: #c9a8f5; }
+
+        /* Function definition / prototype — teal-blue */
+        .tree-node[data-nodetype="FUNC_DEF"],
+        .tree-node[data-nodetype="FUNC_PROTO"] {
+            background: linear-gradient(135deg, #1b3a4b, #132c3a);
+            border-color: #3a8fa0;
+        }
+        .tree-node[data-nodetype="FUNC_DEF"] .node-label,
+        .tree-node[data-nodetype="FUNC_PROTO"] .node-label { color: #7dd3e0; }
+
+        /* Parameter list / individual params — olive-green */
+        .tree-node[data-nodetype="PARAM_LIST"],
+        .tree-node[data-nodetype="PARAM"] {
+            background: linear-gradient(135deg, #2a3320, #1e2716);
+            border-color: #6a8f42;
+        }
+        .tree-node[data-nodetype="PARAM_LIST"] .node-label,
+        .tree-node[data-nodetype="PARAM"] .node-label { color: #a8c97a; }
+
         /* ===== TREE SVG LINES ===== */
         .tree-svg {
             position: absolute;

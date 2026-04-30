@@ -172,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const el = document.createElement('div');
         el.className = 'tree-node ' + (node.terminal ? 'terminal' : 'non-terminal');
+        el.dataset.nodetype = node.label; // allows CSS to style specific node types
         el.style.left = node._x + 'px';
         el.style.top = node._y + 'px';
         el.style.width = node._width + 'px';
